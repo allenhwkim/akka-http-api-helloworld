@@ -1,13 +1,15 @@
-//package hello;
-
 import akka.*;
 import akka.actor.*;
 import akka.http.javadsl.*;
+import akka.http.javadsl.marshallers.jackson.*;
 import akka.http.javadsl.model.*;
 import akka.http.javadsl.server.*;
 import akka.stream.*;
 import akka.stream.javadsl.*;
+import com.fasterxml.jackson.annotation.*;
+import java.util.*;
 import java.util.concurrent.*;
+// import static akka.http.javadsl.server.PathMatchers.longSegment;
 
 public class HelloWorld extends AllDirectives {
 
@@ -34,9 +36,36 @@ public class HelloWorld extends AllDirectives {
     }
 
     private Route createRoute() {
+
         return route(
-                path("", () ->
-                        get(() ->
-                                complete("<h1>Hello World From Akka-Http</h1>"))));
+           get(() ->
+              path("", () -> complete("<h1>Hello World From Akka-Http-Json</h1>")),
+              path("json", () -> {
+                  final CompletionStage<Optional<Item>> futureMaybeItem = fetchItem("World");
+                  return onSuccess(futureMaybeItem, maybeItem ->
+                      maybeItem.map(item -> completeOK(item, Jackson.marshaller()))
+                  );
+              })
+           )
+        );
     }
+
+    private static class Item {
+        final String id;
+        final String name;
+
+        @JsonCreator
+        Item(@JsonProperty("id") String id, @JsonProperty("name") String name) {
+            this.id = id;
+            this.name = name;
+        }
+        public String getName() { return name; }
+        public String getId() { return id; }
+    }
+
+    // (fake) async database query api
+    private CompletionStage<Optional<Item>> fetchItem(String name) {
+        return CompletableFuture.completedFuture(Optional.of(new Item("Hello", name)));
+    }
+
 }
