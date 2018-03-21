@@ -1,28 +1,19 @@
-//package akka.http.javadsl.server.examples.petstore;
-
 import akka.actor.ActorSystem;
 import akka.http.javadsl.ConnectHttp;
 import akka.http.javadsl.Http;
-//#imports
 import akka.http.javadsl.marshallers.jackson.Jackson;
 import akka.http.javadsl.model.StatusCodes;
-//#imports
 import akka.http.javadsl.server.Route;
 import akka.stream.ActorMaterializer;
 
 import java.io.IOException;
-//#imports
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-//#imports
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
-//#imports
 import static akka.http.javadsl.server.Directives.*;
 import static akka.http.javadsl.unmarshalling.StringUnmarshallers.INTEGER;
-
-//#imports
 
 public class HelloWorld {
 
@@ -51,24 +42,22 @@ public class HelloWorld {
 
         // The directives here are statically imported, but you can also inherit from AllDirectives.
         return
-                route(
-                        path("", () -> complete("Hello Pets World, visit /pet/1")),
-                        pathPrefix("pet", () ->
-                                path(INTEGER, petId -> route(
-                                        // demonstrates different ways of handling requests:
+        route(
+            path("", () -> complete("Hello Pets World, visit /pet/1")),
+            pathPrefix("pet", () ->
+                path(INTEGER, petId -> route(
+                    // 1. using a Function
+                    get(() -> existingPet.apply(petId)),
 
-                                        // 1. using a Function
-                                        get(() -> existingPet.apply(petId)),
-
-                                        // 2. using a method
-                                        put(() ->
-                                                entity(Jackson.unmarshaller(Pet.class), thePet ->
-                                                        putPetHandler(pets, thePet)
-                                                )
-                                        )
-                                ))
+                    // 2. using a method
+                    put(() ->
+                        entity(Jackson.unmarshaller(Pet.class), thePet ->
+                            putPetHandler(pets, thePet)
                         )
-                );
+                    )
+                ))
+            )
+        );
     }
     //#unmarshall
 
