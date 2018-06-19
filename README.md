@@ -5,7 +5,7 @@ Minimal example of akka-http
 ```
 $ ##### Tutorial Install/Run   #####
 $ git clone https://github.com/allenhwkim/akka-http-helloworld.git
-$ cd play-helloworld
+$ cd akka-http-helloworld
 $ sbt compile run
 $ curl http://localhost:8080/pet/1
 {"id":1,"name":"cat"}
